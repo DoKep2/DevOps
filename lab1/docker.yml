@@ -1,0 +1,25 @@
+---
+- name: Docker | pkg install
+  apt:
+    name:
+      - ca-certificates
+      - curl
+      - gnupg
+    update-cache: true
+- name: Docker | add docker GPG key
+  apt_key:
+    url: "https://download.docker.com/linux/ubuntu/gpg"
+    state: present
+- name: Docker | add repository into sources list
+  apt_repository:
+    repo: "deb [arch=amd64/v8] https://download.docker.com/linux/ubuntu focal stable"
+    state: present
+- name: Docker | Install Docker
+  apt:
+    name:
+      - docker
+      - docker.io
+      - docker-compose
+      - docker-registry
+    state: latest
+    update-cache: true

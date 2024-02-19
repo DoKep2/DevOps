@@ -1,0 +1,81 @@
+---
+- name: Install Git
+  apt:
+    name: git
+    state: present
+
+- name: Clone django repo
+  git:
+    repo: 'https://github.com/mdn/django-locallibrary-tutorial'
+    dest: "~/django/locallibrary"
+    force: true
+
+- name: Copy Dockerfile to target
+  copy:
+    src: "./Dockerfile"
+    dest: "~/django/locallibrary//Dockerfile"
+
+- name: Build Docker image
+  docker_image:
+    build:
+      path: "~/django/locallibrary/"
+    name: "django"
+    source: build
+
+- name: Apply migrations
+  docker_container:
+    name: "django_c"
+    image: "django"
+    command: python manage.py makemigrations
+    volumes: #своего рода костыль - маунтим папки виртуалки к папкам контейнера, чтобы изменения оставались между запусками контейнера
+      - "~/django/locallibrary/:/usr/src/app"
+    detach: false #так контейнер запустится не в бэкграунде, и это отразится в статусе таски по выполнению контейнера
+
+- name: Apply database migrations
+  docker_container:
+    name: "django_c"
+    image: "django"
+    command: python manage.py migrate
+    volumes:
+      - "~/django/locallibrary/:/usr/src/app"
+    detach: false
+
+- name: Collect static files
+  docker_container:
+    name: "django_c"
+    image: "django"
+    command: python manage.py collectstatic --noinput
+    volumes:
+      - "~/django/locallibrary/:/usr/src/app"
+    detach: false
+
+- name: Run test suite
+  docker_container:
+    name: "django_c"
+    image: "django"
+    command: python manage.py test
+    volumes:
+      - "~/django/locallibrary/:/usr/src/app"
+    detach: false
+
+- name: Create Django superuser
+  docker_container:
+    name: "django_c"
+    image: "django"
+
+    command: "python manage.py createsuperuser --noinput --username=admin --email=admin@{{ inventory_hostname }}.com"
+    volumes:
+      - "~/django/locallibrary/:/usr/src/app"
+    detach: false
+  ignore_errors: true #чтобы в случае если пользователь уже есть, таска не зафейлилась а проигнорилась
+- name: Run Docker container
+  docker_container:
+    name: "django_c"
+    image: "django"
+    state: started
+    recreate: true #пересоздать контейнер если он уже есть и поднят
+    published_ports: #смапить порт хоста на порт контейнера
+      - "8000:8000"
+    volumes:
+      - "~/django/locallibrary/:/usr/src/app"
+    command: python manage.py runserver 0.0.0.0:8000

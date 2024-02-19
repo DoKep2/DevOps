@@ -1,0 +1,6 @@
+- name: PG | Create databases
+  become_user: postgres
+  postgresql_db:
+    name: "{{ item.name }}"
+    login_user: postgres
+  loop: "{{ postgresql_create_databases }}"

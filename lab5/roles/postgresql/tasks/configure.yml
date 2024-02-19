@@ -1,0 +1,32 @@
+- name: Ensure custom directory exists
+  ansible.builtin.file:
+    path: "{{ postgresql_data_directory }}"
+    state: directory
+  become: true
+
+- name: PG | Configure PostgreSQL
+  template:
+    src: pg_hba.conf.j2
+    dest: "{{ postgresql_data_directory }}/pg_hba.conf"
+    owner: postgres
+    group: postgres
+    mode: "0640"
+
+#- name: Copy PostgreSQL files to custom directory
+#  ansible.builtin.command:
+#    cmd: "rsync -av --exclude='*/' {{ postgresql_base_data_directory }}/ {{ postgresql_data_directory }}/"
+#  become: true
+
+- name: PG | Ensure PostgreSQL service is running
+  service:
+    name: postgresql
+    state: started
+    enabled: yes
+
+- name: PG | Allow PostgreSQL to listen on all interfaces
+  lineinfile:
+    path: "{{ postgresql_data_directory }}/postgresql.conf"
+    regexp: "^#?listen_addresses = 'localhost'"
+    line: "listen_addresses = '*'"
+    state: present
+  notify: Reload PostgreSQL

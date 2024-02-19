@@ -1,0 +1,7 @@
+---
+- name: Converge
+  hosts: all
+  tasks:
+    - name: "Include dokep.openvpn"
+      ansible.builtin.include_role:
+        name: "dokep.openvpn"
