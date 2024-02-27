@@ -11,6 +11,7 @@
     - { value: "wal_keep_segments = 10" }
 
 - name: Add replication user
+  become_user: postgres
   ansible.builtin.postgresql_user:
     name: "{{ replication_username }}"
     password: "{{ replication_password }}"
@@ -19,6 +20,7 @@
 
 
 - name: Allow replication connections in pg_hba.conf
+  become_user: postgres
   ansible.builtin.lineinfile:
     path: /etc/postgresql/{{ postgresql_version }}/main/pg_hba.conf
     regexp: '^host\s+replication\s+{{ replication_username }}\s+'

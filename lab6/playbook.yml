@@ -1,3 +1,8 @@
-- hosts: db
+- hosts: monitoring
   roles:
-    - postgresql
+    - grafana
+    - prometheus
+    - loki
+#- hosts.ini.ini: app
+#  roles:
+#    - app

@@ -1,4 +1,0 @@
----
-# defaults file for nginx
-nginx_package_name: nginx
-nginx_state_latest: false

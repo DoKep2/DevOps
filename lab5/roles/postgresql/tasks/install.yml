@@ -7,9 +7,10 @@
       - python3-dev
       - acl
       - sudo
+      - rsync
     state: present
     update_cache: yes
 
-- name: PG | Install psycopg2 Python library
-  become: true
-  command: "/usr/bin/python3 -m pip install psycopg2"
+#- name: PG | Install psycopg2 Python library
+#  become: true
+#  command: "/usr/bin/python3 -m pip install psycopg2"

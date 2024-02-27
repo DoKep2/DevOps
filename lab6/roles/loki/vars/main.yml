@@ -1,0 +1,7 @@
+---
+# vars file for loki
+
+go_version: "1.22.0"
+go_download_url: "https://golang.org/dl/go{{ go_version }}.linux-amd64.tar.gz"
+go_install_dir: "/usr/local"
+go_install_path: "{{ go_install_dir }}/go"

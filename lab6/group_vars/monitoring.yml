@@ -1,0 +1,2 @@
+grafana_url: "http://192.168.56.202:3000"
+prometheus_url: "http://192.168.56.202:9090"

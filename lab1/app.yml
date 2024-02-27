@@ -1,37 +1,43 @@
 ---
-- name: Install Git
+- name: app | Install Git
   apt:
     name: git
     state: present
 
-- name: Clone django repo
+- name: app | Clone django repo
   git:
     repo: 'https://github.com/mdn/django-locallibrary-tutorial'
     dest: "~/django/locallibrary"
     force: true
 
-- name: Copy Dockerfile to target
+- name: app | Allow all hosts.ini.ini
+  lineinfile:
+    path: "~/django/locallibrary/locallibrary/settings.py"
+    regexp: "ALLOWED_HOSTS"
+    line: "ALLOWED_HOSTS = ['*']"
+
+- name: app | Copy Dockerfile to target
   copy:
     src: "./Dockerfile"
     dest: "~/django/locallibrary//Dockerfile"
 
-- name: Build Docker image
+- name: app | Build Docker image
   docker_image:
     build:
       path: "~/django/locallibrary/"
     name: "django"
     source: build
 
-- name: Apply migrations
+- name: app | Apply migrations
   docker_container:
     name: "django_c"
     image: "django"
     command: python manage.py makemigrations
-    volumes: #своего рода костыль - маунтим папки виртуалки к папкам контейнера, чтобы изменения оставались между запусками контейнера
+    volumes:
       - "~/django/locallibrary/:/usr/src/app"
-    detach: false #так контейнер запустится не в бэкграунде, и это отразится в статусе таски по выполнению контейнера
+    detach: false
 
-- name: Apply database migrations
+- name: app | Apply database migrations
   docker_container:
     name: "django_c"
     image: "django"
@@ -40,7 +46,7 @@
       - "~/django/locallibrary/:/usr/src/app"
     detach: false
 
-- name: Collect static files
+- name: app | Collect static files
   docker_container:
     name: "django_c"
     image: "django"
@@ -49,7 +55,7 @@
       - "~/django/locallibrary/:/usr/src/app"
     detach: false
 
-- name: Run test suite
+- name: app | Run test suite
   docker_container:
     name: "django_c"
     image: "django"
@@ -58,7 +64,7 @@
       - "~/django/locallibrary/:/usr/src/app"
     detach: false
 
-- name: Create Django superuser
+- name: app | Create Django superuser
   docker_container:
     name: "django_c"
     image: "django"
@@ -67,14 +73,14 @@
     volumes:
       - "~/django/locallibrary/:/usr/src/app"
     detach: false
-  ignore_errors: true #чтобы в случае если пользователь уже есть, таска не зафейлилась а проигнорилась
-- name: Run Docker container
+  ignore_errors: true
+- name: app | Run Docker container
   docker_container:
     name: "django_c"
     image: "django"
     state: started
-    recreate: true #пересоздать контейнер если он уже есть и поднят
-    published_ports: #смапить порт хоста на порт контейнера
+    recreate: true
+    published_ports:
       - "8000:8000"
     volumes:
       - "~/django/locallibrary/:/usr/src/app"

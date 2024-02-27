@@ -28,9 +28,9 @@
     name: "django_c"
     image: "django"
     command: python manage.py makemigrations
-    volumes: #своего рода костыль - маунтим папки виртуалки к папкам контейнера, чтобы изменения оставались между запусками контейнера
+    volumes:
       - "~/django/locallibrary/:/usr/src/app"
-    detach: false #так контейнер запустится не в бэкграунде, и это отразится в статусе таски по выполнению контейнера
+    detach: false
 
 - name: Apply database migrations
   docker_container:
@@ -68,14 +68,14 @@
     volumes:
       - "~/django/locallibrary/:/usr/src/app"
     detach: false
-  ignore_errors: true #чтобы в случае если пользователь уже есть, таска не зафейлилась а проигнорилась
+  ignore_errors: true
 - name: Run Docker container
   docker_container:
     name: "django_c"
     image: "django"
     state: started
-    recreate: true #пересоздать контейнер если он уже есть и поднят
-    published_ports: #смапить порт хоста на порт контейнера
+    recreate: true
+    published_ports:
       - "8000:8000"
     volumes:
       - "~/django/locallibrary/:/usr/src/app"

@@ -1,0 +1,147 @@
+#---
+## tasks file for grafana
+
+# При установке через apt модуль какая-то багуля
+- name: Grafana | install ca-certificates
+  command:
+    cmd: "apt install ca-certificates"
+
+- name: Grafana | install packages
+  apt:
+    name: gnupg, software-properties-common
+    state: present
+    update_cache: yes
+
+- name: Grafana | add gpg key
+  apt_key:
+    url: "https://packages.grafana.com/gpg.key"
+    validate_certs: no
+
+- name: Grafana | add grafana repository
+  apt_repository:
+    repo: "deb https://packages.grafana.com/oss/deb stable main"
+    state: present
+    update_cache: yes
+    validate_certs: no
+
+- name: Grafana | install grafana
+  apt:
+    name: grafana
+    state: present
+    update_cache: yes
+
+- name: Grafana | start service
+  service:
+    name: grafana-server
+    state: started
+    enabled: yes
+
+- name: Grafana | wait for grafana to start
+  uri:
+    url: http://localhost:3000
+    status_code: 200
+  register: __result
+  until: __result.status == 200
+  retries: 120
+  delay: 1
+
+- name: Grafana | change admin password
+  shell: "grafana-cli admin reset-admin-password {{ grafana_admin_password }}"
+  register: __command_admin
+  changed_when: __command_admin.rc != 0
+
+- name: Grafana | Check if datasource exists
+  uri:
+    url: "{{ grafana_url }}/api/datasources/name/My%20Prometheus%20Datasource"
+    user: "{{ grafana_admin_user }}"
+    password: "{{ grafana_admin_password }}"
+    return_content: yes
+    force_basic_auth: yes
+  register: grafana_datasource_check
+  ignore_errors: yes
+
+- name: Grafana | Configure Grafana datasource
+  when: grafana_datasource_check.status != 200
+  uri:
+    url: "{{ grafana_url }}/api/datasources"
+    method: POST
+    user: "{{ grafana_admin_user }}"
+    password: "{{ grafana_admin_password }}"
+    body_format: json
+    body:
+      name: My Prometheus Datasource
+      type: prometheus
+      url: "{{ prometheus_url }}"
+      access: proxy
+      isDefault: true
+      jsonData:
+        tlsSkipVerify: true
+        timeInterval: "5s"
+      headers:
+        Content-Type: "application/json"
+      status_code: 200
+    force_basic_auth: yes
+    validate_certs: no
+  register: grafana_datasource_result
+
+- name: Grafana | Create Grafana dashboard if not exists
+  uri:
+    url: "{{ grafana_url }}/api/dashboards/uid/my_dashboard_uid"
+    user: "{{ grafana_admin_user }}"
+    password: "{{ grafana_admin_password }}"
+    return_content: yes
+    force_basic_auth: yes
+  register: grafana_dashboard_check
+  ignore_errors: yes
+
+- name: Grafana | Create Grafana dashboard
+  when: grafana_dashboard_check.status != 200
+  uri:
+    url: "{{ grafana_url }}/api/dashboards/db"
+    method: POST
+    user: "{{ grafana_admin_user }}"
+    password: "{{ grafana_admin_password }}"
+    body_format: json
+    body:
+      dashboard:
+        id: null
+        uid: my_dashboard_uid
+        title: My Dashboard
+        panels:
+          - title: "HTTP Requests"
+            type: graph
+            datasource: "{{ grafana_datasource_result.json.id }}"
+            targets:
+              - expr: "prometheus_http_requests_total"
+            xaxis:
+              mode: time
+              name: time
+              show: true
+            yaxes:
+              - format: short
+                label: count
+                logBase: 1
+                max: null
+                min: null
+                show: true
+              - format: short
+                label: ""
+                logBase: 1
+                max: null
+                min: null
+                show: true
+            gridPos:
+              h: 9
+              w: 12
+              x: 0
+              y: 0
+            id: 2
+        timezone: browser
+        version: 1
+        links: []
+      folderId: 0
+      overwrite: true
+    force_basic_auth: yes
+    headers:
+      Content-Type: "application/json"
+    validate_certs: no

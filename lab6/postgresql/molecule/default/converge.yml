@@ -1,7 +1,0 @@
----
-- name: Converge
-  hosts: all
-  tasks:
-    - name: "Include dokep.postgresql"
-      ansible.builtin.include_role:
-        name: "dokep.postgresql"

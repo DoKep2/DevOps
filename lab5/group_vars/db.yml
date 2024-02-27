@@ -1,4 +1,4 @@
-postgresql_data_directory: "/aboba/123"
+postgresql_data_directory: "/aboba/1234"
 postgresql_version: "12"
 
 postgresql_create_databases:

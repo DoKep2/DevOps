@@ -1,0 +1,15 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: docker
+  options:
+    platform: linux
+platforms:
+  - name: prometheus
+    image: d3pre5s/ubuntu-py:20.04
+    pre_build_image: true
+provisioner:
+  name: ansible
+verifier:
+  name: ansible

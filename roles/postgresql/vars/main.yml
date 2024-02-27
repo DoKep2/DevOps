@@ -1,3 +1,0 @@
----
-# vars file for postgresql
-postgresql_base_data_directory: "/etc/postgresql/{{ postgresql_version }}/main"

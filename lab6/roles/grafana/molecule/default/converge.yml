@@ -1,0 +1,7 @@
+---
+- name: Converge
+  hosts: all
+  tasks:
+    - name: "Include dokep.grafana"
+      ansible.builtin.include_role:
+        name: "dokep.grafana"

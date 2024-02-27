@@ -1,0 +1,9 @@
+---
+# handlers file for loki
+
+- name: restart loki
+  service:
+    name: loki
+    state: restarted
+    enabled: yes
+    daemon_reload: yes
