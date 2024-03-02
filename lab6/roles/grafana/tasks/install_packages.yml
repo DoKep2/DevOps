@@ -1,0 +1,9 @@
+- name: Grafana | install ca-certificates
+  ansible.builtin.command:
+    cmd: "apt install ca-certificates"
+
+- name: Grafana | install packages
+  ansible.builtin.apt:
+    name: gnupg, software-properties-common
+    state: present
+    update_cache: yes

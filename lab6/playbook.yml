@@ -1,8 +1,8 @@
-- hosts: monitoring
-  roles:
-    - grafana
-    - prometheus
-    - loki
-#- hosts.ini.ini: app
+#- hosts: monitoring
 #  roles:
-#    - app
+#    - grafana
+#    - prometheus
+#    - loki
+- hosts: app
+  roles:
+    - app

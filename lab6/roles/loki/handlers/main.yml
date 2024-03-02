@@ -2,7 +2,7 @@
 # handlers file for loki
 
 - name: restart loki
-  service:
+  ansible.builtin.service:
     name: loki
     state: restarted
     enabled: yes

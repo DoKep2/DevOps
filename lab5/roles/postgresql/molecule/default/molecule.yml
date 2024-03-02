@@ -4,7 +4,7 @@ dependency:
 driver:
   name: docker
 platforms:
-  - name: instance
+  - name: instance2
     image: d3pre5s/ubuntu-py:20.04
     pre_build_image: true
 provisioner:

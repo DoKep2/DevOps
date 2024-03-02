@@ -1,14 +1,14 @@
 - name: Enable replication in PostgreSQL configuration
-  ansible.builtin.lineinfile:
+  ansible.builtin.replace:
     path: /etc/postgresql/{{ postgresql_version }}/main/postgresql.conf
-    regexp: '^#? *(#)?(wal_level|max_wal_senders|wal_keep_segments) *=.*$'
-    line: "{{ item.value }}"
-    state: present
-  become: true
+    regexp: '^(#?\s*){{ item.regex }}\s*=\s*.+$'
+    replace: '\1{{ item.value }}'
+    backup: yes
   loop:
-    - { value: "wal_level = replica" }
-    - { value: "max_wal_senders = 10" }
-    - { value: "wal_keep_segments = 10" }
+    - { regex: 'wal_level', value: 'wal_level = replica' }
+    - { regex: 'max_wal_senders', value: 'max_wal_senders = 10' }
+    - { regex: 'wal_keep_segments', value: 'wal_keep_segments = 10' }
+  #tags: molecule-idempotence-notest
 
 - name: Add replication user
   become_user: postgres
@@ -17,7 +17,7 @@
     password: "{{ replication_password }}"
     role_attr_flags: "REPLICATION"
   become: true
-
+  #tags: molecule-idempotence-notest
 
 - name: Allow replication connections in pg_hba.conf
   become_user: postgres
@@ -27,9 +27,15 @@
     line: "host replication {{ replication_username }} all md5"
     state: present
   become: true
+  #tags: molecule-idempotence-notest
 
-- name: Restart PostgreSQL service
+# fixme
+- name: Restart PostgreSQL service if changes were made
   ansible.builtin.service:
     name: postgresql
     state: restarted
   become: true
+  when: ansible_run_result.changed
+  register: ansible_run_result
+  #tags: molecule-idempotence-notest
+

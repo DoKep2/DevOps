@@ -1,8 +1,9 @@
 - name: PG | Create users
   become: yes
   become_user: postgres
-  postgresql_user:
+  ansible.builtin.postgresql_user:
     name: "{{ item.name }}"
     password: "{{ item.password }}"
     login_user: postgres
   loop: "{{ postgresql_create_users }}"
+  #tags: molecule-idempotence-notest

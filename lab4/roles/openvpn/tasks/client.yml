@@ -18,7 +18,7 @@
     - "{{ openvpn_clients }}"
 
 - name: "OpenVPN | ensure {{ openvpn_dir }}/users exists"
-  file:
+  ansible.builtin.file:
     path: "{{ openvpn_dir }}/users"
     state: directory
     mode: 0755
@@ -76,7 +76,7 @@
   register: openvpn_client_certs
 
 - name: OpenVPN | Generate client config
-  template:
+  ansible.builtin.template:
     src: client.ovpn.j2
     dest: "{{ openvpn_dir }}/users/{{ item.0.item }}-{{ inventory_hostname }}.ovpn"
     owner: root
@@ -86,8 +86,8 @@
     - "{{ openvpn_client_certs.results }}"
     - "{{ openvpn_client_keys.results }}"
 
-- name: "Ensure the directory {{ playbook_dir }}/ovpn exists"
-  file:
+- name: "OpenVPN | Ensure the directory {{ playbook_dir }}/ovpn exists"
+  ansible.builtin.file:
     path: "{{ playbook_dir }}/ovpn"
     state: directory
     owner: root

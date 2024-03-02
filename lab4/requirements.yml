@@ -1,0 +1,3 @@
+- src: git+ssh://git@gitlab.com/dokep-roles/ansible-role-openvpn.git
+  version: main
+  name: openvpn

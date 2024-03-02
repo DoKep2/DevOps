@@ -1,6 +1,6 @@
-#- src: git+ssh://git@gitlab.com/dokep-roles/ansible-role-docker.git
-#  version: master
-#  name: docker
+- src: git+ssh://git@gitlab.com/dokep-roles/ansible-role-docker.git
+  version: master
+  name: docker
 
 - src: git+ssh://git@gitlab.com/dokep-roles/ansible-role-nginx.git
   version: "1.0"

@@ -1,0 +1,15 @@
+---
+# tasks file for docker
+- include_tasks: install_docker.yml
+
+- name: docker | add docker GPG key
+  ansible.builtin.apt_key:
+    url: "https://download.docker.com/linux/ubuntu/gpg"
+    state: present
+
+- name: docker | add repository into sources list
+  ansible.builtin.apt_repository:
+    repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
+    state: present
+
+- include_tasks: install_docker.yml

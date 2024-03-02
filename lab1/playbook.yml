@@ -2,5 +2,5 @@
 - name: lab1
   hosts: app
   tasks:
-    - include_tasks: docker.yml
-    - include_tasks: app.yml
+    - ansible.builtin.include_tasks: docker.yml
+    - ansible.builtin.include_tasks: app.yml

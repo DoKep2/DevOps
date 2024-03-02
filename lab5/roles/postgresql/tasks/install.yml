@@ -1,5 +1,5 @@
 - name: PG | Install PostgreSQL
-  apt:
+  ansible.builtin.apt:
     name:
       - "postgresql-{{ postgresql_version }}"
       - python3-pip
@@ -10,7 +10,10 @@
       - rsync
     state: present
     update_cache: yes
+  #tags: molecule-idempotence-notest
 
-#- name: PG | Install psycopg2 Python library
-#  become: true
-#  command: "/usr/bin/python3 -m pip install psycopg2"
+- name: PG | Install psycopg2 package
+  ansible.builtin.pip:
+    name: psycopg2
+    state: present
+  #tags: molecule-idempotence-notest

@@ -1,9 +1,9 @@
 ---
 # tasks file for loki
-- include_tasks: golang.yml
+- ansible.builtin.include_tasks: golang.yml
 
 - name: loki | install packages
-  apt:
+  ansible.builtin.apt:
     name:
       - git
       - wget
@@ -27,13 +27,13 @@
     comment: "Allow Loki port"
 
 - name: loki | install iptables-persistent
-  apt:
+  ansible.builtin.apt:
     name: iptables-persistent
     state: present
     update_cache: yes
 
 - name: loki | save iptables
-  command: "netfilter-persistent save"
+  ansible.builtin.command: "netfilter-persistent save"
   args:
     executable: /bin/bash
 
@@ -126,12 +126,12 @@
     state: started
     enabled: yes
 
-#- name: loki | ensure loki is running
-#  wait_for:
-#    port: 3100
-#    state: started
-#  delegate_to: localhost
-#  become: false
-#  become_user: loki
-#  become_method: su
-#  become_flags: '-s /bin/bash'
+- name: loki | ensure loki is running
+  wait_for:
+    port: 3100
+    state: started
+  delegate_to: localhost
+  become: false
+  become_user: loki
+  become_method: su
+  become_flags: '-s /bin/bash'
