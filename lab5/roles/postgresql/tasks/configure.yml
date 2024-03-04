@@ -4,12 +4,20 @@
     path: "{{ postgresql_base_data_directory }}/"
     state: directory
   become: true
+  #tags: molecule-idempotence-notest
 
 - name: "Ensure custom directory {{ postgresql_data_directory }}/ exists"
   ansible.builtin.file:
     path: "{{ postgresql_data_directory }}/"
     state: directory
   become: true
+  #tags: molecule-idempotence-notest
+
+- name: Check if pg_hba.conf exists and its contents
+  ansible.builtin.stat:
+    path: "/etc/postgresql/{{ postgresql_version }}/main/pg_hba.conf"
+  register: pg_hba_conf
+  #tags: molecule-idempotence-notest
 
 - name: PG | Configure PostgreSQL
   ansible.builtin.template:
@@ -18,11 +26,19 @@
     owner: postgres
     group: postgres
     mode: "0640"
+  when: not pg_hba_conf.stat.exists or pg_hba_conf.stat.size == 0
+  #tags: molecule-idempotence-notest
+
+- name: PG | Check if PostgreSQL files need to be copied
+  ansible.builtin.stat:
+    path: "{{ postgresql_data_directory }}"
+  register: dest_directory
 
 - name: PG | Copy PostgreSQL files to custom directory
   ansible.builtin.command:
     cmd: "rsync -av --exclude='*/' {{ postgresql_base_data_directory }}/ {{ postgresql_data_directory }}/"
   become: true
+#  when: dest_directory.stat.exists == false
 
 - name: PG | Allow PostgreSQL to listen on all interfaces
   ansible.builtin.lineinfile:
@@ -32,8 +48,10 @@
     state: present
   notify: Reload PostgreSQL
 
+#fixme?
 - name: PG | Ensure PostgreSQL service is running
   ansible.builtin.service:
     name: postgresql
     state: started
     enabled: yes
+  #tags: molecule-idempotence-notest
