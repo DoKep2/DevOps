@@ -1,44 +1,34 @@
-#---
+---
 ## tasks file for grafana
-
-# При установке через apt модуль какая-то багуля
-- name: Grafana | install ca-certificates
-  command:
-    cmd: "apt install ca-certificates"
-
-- name: Grafana | install packages
-  apt:
-    name: gnupg, software-properties-common
-    state: present
-    update_cache: yes
+- ansible.builtin.include_tasks: install.yml
 
 - name: Grafana | add gpg key
-  apt_key:
+  ansible.builtin.apt_key:
     url: "https://packages.grafana.com/gpg.key"
     validate_certs: no
 
 - name: Grafana | add grafana repository
-  apt_repository:
+  ansible.builtin.apt_repository:
     repo: "deb https://packages.grafana.com/oss/deb stable main"
     state: present
     update_cache: yes
     validate_certs: no
 
 - name: Grafana | install grafana
-  apt:
+  ansible.builtin.apt:
     name: grafana
     state: present
     update_cache: yes
 
 - name: Grafana | start service
-  service:
+  ansible.builtin.service:
     name: grafana-server
     state: started
     enabled: yes
 
 - name: Grafana | wait for grafana to start
-  uri:
-    url: http://localhost:3000
+  ansible.builtin.uri:
+    url: "http://{{ ansible_host }}:3000"
     status_code: 200
   register: __result
   until: __result.status == 200
@@ -46,12 +36,12 @@
   delay: 1
 
 - name: Grafana | change admin password
-  shell: "grafana-cli admin reset-admin-password {{ grafana_admin_password }}"
+  ansible.builtin.shell: "grafana-cli admin reset-admin-password {{ grafana_admin_password }}"
   register: __command_admin
   changed_when: __command_admin.rc != 0
 
 - name: Grafana | Check if datasource exists
-  uri:
+  ansible.builtin.uri:
     url: "{{ grafana_url }}/api/datasources/name/My%20Prometheus%20Datasource"
     user: "{{ grafana_admin_user }}"
     password: "{{ grafana_admin_password }}"
@@ -62,7 +52,7 @@
 
 - name: Grafana | Configure Grafana datasource
   when: grafana_datasource_check.status != 200
-  uri:
+  ansible.builtin.uri:
     url: "{{ grafana_url }}/api/datasources"
     method: POST
     user: "{{ grafana_admin_user }}"
@@ -85,7 +75,7 @@
   register: grafana_datasource_result
 
 - name: Grafana | Create Grafana dashboard if not exists
-  uri:
+  ansible.builtin.uri:
     url: "{{ grafana_url }}/api/dashboards/uid/my_dashboard_uid"
     user: "{{ grafana_admin_user }}"
     password: "{{ grafana_admin_password }}"
@@ -96,7 +86,7 @@
 
 - name: Grafana | Create Grafana dashboard
   when: grafana_dashboard_check.status != 200
-  uri:
+  ansible.builtin.uri:
     url: "{{ grafana_url }}/api/dashboards/db"
     method: POST
     user: "{{ grafana_admin_user }}"

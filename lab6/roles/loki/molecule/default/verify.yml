@@ -5,6 +5,19 @@
   hosts: all
   gather_facts: false
   tasks:
-    - name: Example assertion
-      ansible.builtin.assert:
-        that: true
+    - name: Verify | check if git is installed
+      ansible.builtin.command: git --version
+      register: git_version
+      changed_when: false
+    - name: Verify | check go version
+      ansible.builtin.command: go version
+      register: go_version
+      changed_when: false
+    - name: Verify | loki is running
+      ansible.builtin.uri:
+          url: "http://{{ ansible_host }}:3100/ready"
+          status_code: 200
+      register: response
+      until: response.status == 200
+      retries: 10
+      delay: 5

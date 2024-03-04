@@ -1,18 +1,2 @@
 ---
 # vars file for postgresql
-postgresql_base_data_directory: "/etc/postgresql/{{ postgresql_version }}/main"
-
-postgresql_create_databases:
-  - name: dbname1
-  - name: dbname2
-  - name: dbname3
-postgresql_create_users:
-  - name: user1
-    password: secret1
-  - name: user2
-    password: secret2
-  - name: user3
-    password: secret3
-
-replication_username: "replication_user"
-replication_password: "your_replication_password"

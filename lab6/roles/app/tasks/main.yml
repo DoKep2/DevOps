@@ -1,17 +1,6 @@
 ---
 # tasks file for app
-
-- name: install git and wget
-  apt:
-    name:
-      - git
-      - wget
-      - default-jdk
-      - gradle
-    state: present
-    update_cache: yes
-
-# clone repo https://github.com/grafana/spring-boot-demo.git
+- ansible.builtin.include_tasks: install.yml
 
 - name: clone spring-boot-demo
   ansible.builtin.git:
@@ -20,15 +9,8 @@
     force: true
     update: yes
 
-# This is a simple Spring Boot app that can be monitored with Prometheus and Grafana. It expose all metrics under /actuator/prometheus. Run ./gradlew :bootRun to launch the app.
-
-#- name: set java home
-#  ansible.builtin.set_fact:
-#    java_home: "/usr/lib/jvm/java-11-openjdk-amd64"
-
 - name: build spring-boot-demo
   ansible.builtin.command:
     cmd: "./gradlew :bootRun"
   args:
     chdir: /usr/src/spring-boot-demo/
-

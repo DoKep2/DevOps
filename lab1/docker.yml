@@ -1,21 +1,24 @@
 ---
 - name: Docker | pkg install
-  apt:
+  ansible.builtin.apt:
     name:
       - ca-certificates
       - curl
       - gnupg
     update-cache: true
+
 - name: Docker | add docker GPG key
-  apt_key:
+  ansible.builtin.apt_key:
     url: "https://download.docker.com/linux/ubuntu/gpg"
     state: present
+
 - name: Docker | add repository into sources list
-  apt_repository:
+  ansible.builtin.apt_repository:
     repo: "deb [arch=amd64/v8] https://download.docker.com/linux/ubuntu focal stable"
     state: present
+
 - name: Docker | Install Docker
-  apt:
+  ansible.builtin.apt:
     name:
       - docker
       - docker.io

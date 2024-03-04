@@ -5,6 +5,11 @@
   hosts: all
   gather_facts: false
   tasks:
-    - name: Example assertion
-      ansible.builtin.assert:
-        that: true
+    - name: Verify | prometheus is running
+      ansible.builtin.uri:
+          url: "http://{{ ansible_host }}:9090"
+          status_code: 200
+      register: response
+      until: response.status == 200
+      retries: 10
+      delay: 5

@@ -3,6 +3,6 @@
     - grafana
     - prometheus
     - loki
-#- hosts.ini.ini: app
-#  roles:
-#    - app
+- hosts: app
+  roles:
+    - app

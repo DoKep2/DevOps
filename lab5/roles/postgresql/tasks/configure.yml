@@ -12,9 +12,9 @@
   become: true
 
 - name: PG | Configure PostgreSQL
-  template:
+  ansible.builtin.template:
     src: pg_hba.conf.j2
-    dest: "/etc/postgresql/12/main/pg_hba.conf"
+    dest: "/etc/postgresql/{{ postgresql_version }}/main/pg_hba.conf"
     owner: postgres
     group: postgres
     mode: "0640"
@@ -25,7 +25,7 @@
   become: true
 
 - name: PG | Allow PostgreSQL to listen on all interfaces
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "{{ postgresql_data_directory }}/postgresql.conf"
     regexp: "^#?listen_addresses = 'localhost'"
     line: "listen_addresses = '*'"
@@ -33,7 +33,7 @@
   notify: Reload PostgreSQL
 
 - name: PG | Ensure PostgreSQL service is running
-  service:
+  ansible.builtin.service:
     name: postgresql
     state: started
     enabled: yes

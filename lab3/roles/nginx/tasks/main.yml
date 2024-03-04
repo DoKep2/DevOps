@@ -1,0 +1,15 @@
+---
+# tasks file for nginx
+- name: nginx | install nginx package (present)
+  apt:
+    name: "{{ nginx_package_name }}"
+    state: present
+    update_cache: yes
+  when: not nginx_state_latest
+
+- name: nginx | install nginx package (latest)
+  apt:
+    name: "{{ nginx_package_name }}"
+    state: present
+    update_cache: yes
+  when: nginx_state_latest

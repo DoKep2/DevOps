@@ -1,0 +1,9 @@
+- name: docker | Install Docker
+  ansible.builtin.apt:
+    name:
+      - docker
+      - docker.io
+      - docker-compose
+      - docker-registry
+    state: present
+    update-cache: true

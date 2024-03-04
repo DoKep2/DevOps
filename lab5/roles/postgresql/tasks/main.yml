@@ -1,8 +1,8 @@
-- import_tasks: install.yml
-- import_tasks: configure.yml
-- import_tasks: replication.yml
-- import_tasks: create_db.yml
-- import_tasks: create_users.yml
+- ansible.builtin.include_tasks: install.yml
+- ansible.builtin.include_tasks: configure.yml
+- ansible.builtin.include_tasks: replication.yml
+- ansible.builtin.include_tasks: create_db.yml
+- ansible.builtin.include_tasks: create_users.yml
 
 
 

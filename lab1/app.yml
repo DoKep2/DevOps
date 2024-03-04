@@ -1,35 +1,35 @@
 ---
 - name: app | Install Git
-  apt:
+  ansible.builtin.apt:
     name: git
     state: present
 
 - name: app | Clone django repo
-  git:
+  ansible.builtin.git:
     repo: 'https://github.com/mdn/django-locallibrary-tutorial'
     dest: "~/django/locallibrary"
     force: true
 
 - name: app | Allow all hosts.ini.ini
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "~/django/locallibrary/locallibrary/settings.py"
     regexp: "ALLOWED_HOSTS"
     line: "ALLOWED_HOSTS = ['*']"
 
 - name: app | Copy Dockerfile to target
-  copy:
+  ansible.builtin.copy:
     src: "./Dockerfile"
     dest: "~/django/locallibrary//Dockerfile"
 
 - name: app | Build Docker image
-  docker_image:
+  community.general.docker_image:
     build:
       path: "~/django/locallibrary/"
     name: "django"
     source: build
 
 - name: app | Apply migrations
-  docker_container:
+  community.general.docker_container:
     name: "django_c"
     image: "django"
     command: python manage.py makemigrations
@@ -38,7 +38,7 @@
     detach: false
 
 - name: app | Apply database migrations
-  docker_container:
+  community.general.docker_container:
     name: "django_c"
     image: "django"
     command: python manage.py migrate
@@ -47,7 +47,7 @@
     detach: false
 
 - name: app | Collect static files
-  docker_container:
+  community.general.docker_container:
     name: "django_c"
     image: "django"
     command: python manage.py collectstatic --noinput
@@ -56,7 +56,7 @@
     detach: false
 
 - name: app | Run test suite
-  docker_container:
+  community.general.docker_container:
     name: "django_c"
     image: "django"
     command: python manage.py test
@@ -65,7 +65,7 @@
     detach: false
 
 - name: app | Create Django superuser
-  docker_container:
+  community.general.docker_container:
     name: "django_c"
     image: "django"
 
@@ -74,8 +74,9 @@
       - "~/django/locallibrary/:/usr/src/app"
     detach: false
   ignore_errors: true
+
 - name: app | Run Docker container
-  docker_container:
+  community.general.docker_container:
     name: "django_c"
     image: "django"
     state: started

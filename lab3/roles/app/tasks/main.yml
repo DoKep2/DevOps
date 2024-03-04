@@ -1,30 +1,30 @@
 ---
 # tasks file for app
 - name: Install Git
-  apt:
+  ansible.builtin.apt:
     name: git
     state: present
 
 - name: Clone django repo
-  git:
+  ansible.builtin.git:
     repo: 'https://github.com/mdn/django-locallibrary-tutorial'
     dest: "~/django/locallibrary"
     force: true
 
 - name: Copy Dockerfile to target
-  copy:
+  ansible.builtin.copy:
     src: "./Dockerfile"
     dest: "~/django/locallibrary//Dockerfile"
 
 - name: Build Docker image
-  docker_image:
+  community.general.docker_image:
     build:
       path: "~/django/locallibrary/"
     name: "django"
     source: build
 
 - name: Apply migrations
-  docker_container:
+  community.general.docker_container:
     name: "django_c"
     image: "django"
     command: python manage.py makemigrations
@@ -33,7 +33,7 @@
     detach: false
 
 - name: Apply database migrations
-  docker_container:
+  community.general.docker_container:
     name: "django_c"
     image: "django"
     command: python manage.py migrate
@@ -42,7 +42,7 @@
     detach: false
 
 - name: Collect static files
-  docker_container:
+  community.general.docker_container:
     name: "django_c"
     image: "django"
     command: python manage.py collectstatic --noinput
@@ -51,7 +51,7 @@
     detach: false
 
 - name: Run test suite
-  docker_container:
+  community.general.docker_container:
     name: "django_c"
     image: "django"
     command: python manage.py test
@@ -60,7 +60,7 @@
     detach: false
 
 - name: Create Django superuser
-  docker_container:
+  community.general.docker_container:
     name: "django_c"
     image: "django"
 
@@ -70,7 +70,7 @@
     detach: false
   ignore_errors: true
 - name: Run Docker container
-  docker_container:
+  community.general.docker_container:
     name: "django_c"
     image: "django"
     state: started

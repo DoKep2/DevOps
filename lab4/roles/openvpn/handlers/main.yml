@@ -1,12 +1,12 @@
 ---
 # handlers file for openvpn
 - name: restart openvpn
-  service:
+  ansible.builtin.service:
     name: openvpn
     state: restarted
 
 - name: enable openvpn
-  service:
+  ansible.builtin.service:
     name: openvpn
     enabled: true
     state: started

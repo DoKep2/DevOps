@@ -4,7 +4,30 @@
 - name: Verify
   hosts: all
   gather_facts: false
+  vars_files:
+    - ../../defaults/main.yml
   tasks:
-    - name: Example assertion
-      ansible.builtin.assert:
-        that: true
+    - name: Verify | Check if PostgreSQL is running
+      ansible.builtin.service:
+        name: postgresql
+      register: service_status
+      ignore_errors: true
+    - name: Verify | Check if PostgreSQL is enabled
+      ansible.builtin.service:
+          name: postgresql
+          enabled: yes
+      register: service_enabled
+      ignore_errors: true
+    - name: Verify | Check if PostgreSQL is listening on port 5432
+      ansible.builtin.wait_for:
+          port: 5432
+          state: started
+      ignore_errors: true
+    - name: Verify | Check if PostgreSQL is listening on all interfaces
+      ansible.builtin.shell: "ss -tuln | grep 5432"
+      register: postgresql_listen
+      ignore_errors: true
+    - name: Verify | Check if PostgreSQL is configured for replication
+      ansible.builtin.shell: "sudo -u postgres psql -c 'show wal_level;'"
+      register: wal_level
+      ignore_errors: true
